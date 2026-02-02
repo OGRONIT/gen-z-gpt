@@ -1,8 +1,42 @@
 "use client";
 import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Copy, Check, Zap, Flame, Crown, Terminal, Share2, Rocket } from 'lucide-react';
+import { Sparkles, Copy, Check, Zap, Rocket } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+
+// Sub-component for individual history cards to handle their own copy state
+function HistoryCard({ item }: { item: any }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(item.transformed_text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="bg-white border-[3px] border-black p-6 rounded-[30px] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between group hover:translate-y-[-2px] transition-all"
+    >
+      <div>
+        <p className="font-bold text-lg leading-snug italic mb-4 line-clamp-3">"{item.transformed_text}"</p>
+        <button 
+          onClick={handleCopy}
+          className="flex items-center gap-2 text-[10px] font-black uppercase bg-gray-50 hover:bg-black hover:text-white px-3 py-1.5 rounded-lg border border-black transition-all mb-4"
+        >
+          {copied ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
+          {copied ? "SECURED" : "COPY DRIP"}
+        </button>
+      </div>
+      <div className="flex justify-between items-center border-t border-black/5 pt-4">
+        <span className="text-[10px] font-black uppercase opacity-40 italic">Aura Intensity: {item.intensity}</span>
+        <div className={`w-3 h-3 rounded-full border border-black ${item.intensity === 5 ? 'bg-purple-600 animate-pulse shadow-[0_0_8px_rgba(147,51,234,0.5)]' : 'bg-green-400'}`} />
+      </div>
+    </motion.div>
+  );
+}
 
 export default function Home() {
   const [input, setInput] = useState('');
@@ -23,7 +57,6 @@ export default function Home() {
     return configs[intensity - 1] || configs[2];
   }, [intensity]);
 
-  // --- FETCH HISTORY ---
   const fetchHistory = async () => {
     try {
       const { data, error } = await supabase
@@ -42,7 +75,6 @@ export default function Home() {
     fetchHistory();
   }, []);
 
-  // --- AUDIO LOGIC ---
   const playSound = (isSigma: boolean) => {
     try {
       const audioPath = isSigma 
@@ -67,13 +99,8 @@ export default function Home() {
       });
       const data = await res.json();
       setOutput(data.transformedText);
-      
-      // Play sound on success
       playSound(intensity === 5);
-      
-      // Refresh history slightly after saving
       setTimeout(fetchHistory, 800);
-      
     } catch (err) {
       setOutput("AI got cooked. Try again, G.");
     }
@@ -92,7 +119,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#FDFDFF] text-[#1A1A1A] font-sans p-4 md:p-8 selection:bg-yellow-200">
-      
       <nav className="max-w-6xl mx-auto flex justify-between items-center mb-12">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
@@ -199,18 +225,7 @@ export default function Home() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
             {history.length > 0 ? history.map((item) => (
-              <motion.div 
-                key={item.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="bg-white border-[3px] border-black p-6 rounded-[30px] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between"
-              >
-                <p className="font-bold text-lg leading-snug italic mb-4 line-clamp-3">"{item.transformed_text}"</p>
-                <div className="flex justify-between items-center border-t border-black/5 pt-4">
-                  <span className="text-[10px] font-black uppercase opacity-40 italic">Aura Intensity: {item.intensity}</span>
-                  <div className={`w-3 h-3 rounded-full border border-black ${item.intensity === 5 ? 'bg-purple-600 animate-pulse shadow-[0_0_8px_rgba(147,51,234,0.5)]' : 'bg-green-400'}`} />
-                </div>
-              </motion.div>
+              <HistoryCard key={item.id} item={item} />
             )) : (
               <p className="col-span-full text-center font-bold opacity-30 uppercase tracking-widest">No history yet. Start cooking, G.</p>
             )}

@@ -1,0 +1,101 @@
+@import "tailwindcss";
+
+/* 1. Theme Configuration for v4 */
+@theme {
+  --color-background: hsl(0 0% 98%);
+  --color-foreground: hsl(0 0% 10%);
+  --color-brand-orange: #FF5F1F;
+  --color-brand-mint: #B4F8C8;
+  --color-brand-yellow: #FFD700;
+  
+  --font-jakarta: "Plus Jakarta Sans", sans-serif;
+  --font-montserrat: "Montserrat", sans-serif;
+}
+
+/* 2. Base Styles */
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-jakarta);
+    @apply antialiased;
+  }
+}
+
+/* 3. Neo-Brutalist Components */
+@layer components {
+  /* The "Neo-Brutalist" Card Style */
+  .neo-card {
+    @apply bg-white border-[3px] border-black rounded-[32px] transition-all duration-200 relative;
+    box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 1);
+  }
+
+  /* When you hover, the card "pushes" back */
+  .neo-card-hover:hover {
+    @apply translate-x-[4px] translate-y-[4px];
+    box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+  }
+
+  /* The "Sigma" Button */
+  .neo-btn {
+    @apply relative font-black uppercase tracking-tighter border-2 border-black transition-all active:scale-95 bg-white px-6 py-3 rounded-xl inline-flex items-center justify-center gap-2;
+    box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+  }
+
+  .neo-btn:hover {
+    @apply -translate-x-0.5 -translate-y-0.5;
+    box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1);
+  }
+
+  .neo-btn:active {
+    @apply translate-x-0.5 translate-y-0.5;
+    box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 1);
+  }
+}
+
+/* 4. Custom Utilities (New v4 @utility directive) */
+@utility mesh-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background-color: #fdfdff;
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+    radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%);
+  opacity: 0.05;
+}
+
+@utility animate-shimmer {
+  animation: shimmer 2s infinite linear;
+}
+
+/* 5. Animations & Interaction fixes */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.cursor-dot {
+  @apply pointer-events-none fixed z-[999] h-4 w-4 rounded-full bg-black mix-blend-difference transition-transform duration-100 ease-out;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-black border-2 border-white rounded-full;
+}
+
+/* Text Area Reset */
+textarea:focus {
+  @apply outline-none ring-0;
+}
